@@ -10,6 +10,7 @@
 
 - **Model Routing**: Route requests to different models based on your needs (e.g., background tasks, thinking, long context).
 - **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and SiliconFlow.
+- **GitHub Copilot Authentication**: Built-in support for GitHub Copilot with OAuth authentication flow.
 - **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
 - **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
 - **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
@@ -302,6 +303,48 @@ The `Router` object defines which model to use for different scenarios:
 You can also switch models dynamically in Claude Code with the `/model` command:
 `/model provider_name,model_name`
 Example: `/model openrouter,anthropic/claude-3.5-sonnet`
+
+#### Authentication
+
+Claude Code Router supports built-in authentication for certain providers like GitHub Copilot, eliminating the need to manually manage API keys.
+
+**GitHub Copilot Authentication:**
+
+1. **Log in to GitHub Copilot:**
+```bash
+ccr auth login
+```
+Select "GitHub Copilot" and follow the device flow authentication.
+
+2. **List stored credentials:**
+```bash
+ccr auth list
+```
+
+3. **Log out:**
+```bash
+ccr auth logout
+```
+
+Once authenticated, you can configure GitHub Copilot as a provider:
+
+```json
+{
+  "Providers": [
+    {
+      "name": "github-copilot",
+      "api_base_url": "https://api.githubcopilot.com/chat/completions", 
+      "api_key": "",
+      "models": ["gpt-4", "gpt-4o", "gpt-3.5-turbo", "o1-preview", "o1-mini"],
+      "transformer": {
+        "use": ["copilot"]
+      } 
+    }
+  ]
+}
+```
+
+The system automatically handles token refresh, secure credential storage, and auto-fills the API key from stored credentials. For more details, see [GitHub Copilot Authentication Guide](docs/GITHUB_COPILOT_AUTH.md).
 
 #### Custom Router
 

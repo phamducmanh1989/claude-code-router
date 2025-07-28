@@ -6,6 +6,7 @@ import { initConfig, initDir } from "./utils";
 import { createServer } from "./server";
 import { router } from "./utils/router";
 import { apiKeyAuth } from "./middleware/auth";
+import { AuthManager } from "./utils/authManager";
 import {
   cleanupPidFile,
   isServiceRunning,
@@ -79,11 +80,26 @@ async function run(options: RunOptions = {}) {
   const servicePort = process.env.SERVICE_PORT
     ? parseInt(process.env.SERVICE_PORT)
     : port;
+    
+  // Auto-fill authentication for providers
+  const providersWithAuth = await AuthManager.fillProviderAuth(
+    config.Providers || config.providers || []
+  );
+  
+  // Set up periodic token refresh for GitHub Copilot (every 30 minutes)
+  setInterval(async () => {
+    try {
+      await AuthManager.refreshTokenIfNeeded();
+    } catch (error) {
+      console.warn("Error during periodic token refresh:", error);
+    }
+  }, 30 * 60 * 1000); // 30 minutes
+    
   const server = createServer({
     jsonPath: CONFIG_FILE,
     initialConfig: {
       // ...config,
-      providers: config.Providers || config.providers,
+      providers: providersWithAuth,
       HOST: HOST,
       PORT: servicePort,
       LOG_FILE: join(

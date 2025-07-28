@@ -3,12 +3,12 @@ import { run } from "./index";
 import { showStatus } from "./utils/status";
 import { executeCodeCommand } from "./utils/codeCommand";
 import { cleanupPidFile, isServiceRunning, getServiceInfo } from "./utils/processCheck";
+import { handleAuthCommand } from "./commands/auth";
 import { version } from "../package.json";
 import { spawn, exec } from "child_process";
 import { PID_FILE, REFERENCE_COUNT_FILE } from "./constants";
 import fs, { existsSync, readFileSync } from "fs";
 import {join} from "path";
-
 const command = process.argv[2];
 
 const HELP_TEXT = `
@@ -21,13 +21,18 @@ Commands:
   status        Show server status
   code          Execute claude command
   ui            Open the web UI in browser
+  auth          Manage authentication credentials
+                - auth login: Authenticate with providers
+                - auth status: Check token status
+                - auth refresh: Refresh expired tokens
   -v, version   Show version information
   -h, help      Show help information
 
 Example:
   ccr start
-  ccr code "Write a Hello World"
   ccr ui
+  ccr auth login
+  ccr auth status
 `;
 
 async function waitForService(
@@ -78,6 +83,10 @@ async function main() {
       break;
     case "status":
       await showStatus();
+      break;
+    case "auth":
+      const authSubcommand = process.argv[3] || "help";
+      await handleAuthCommand(authSubcommand);
       break;
     case "code":
       if (!isServiceRunning()) {
