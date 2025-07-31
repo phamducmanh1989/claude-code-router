@@ -1,0 +1,37 @@
+{
+  "APIKEY": "",
+  "HOST": "127.0.0.1",
+  "PORT": 3456,
+  "transformers": [
+    {
+      "path": "/Users/<user>/.claude-code-router/plugins/copilot.js"
+    }
+  ],
+  "Providers": [
+    {
+      "name": "github-copilot",
+      "api_base_url": "https://api.githubcopilot.com/chat/completions",
+      "api_key": "",
+      "models": ["gpt-4", "gpt-4o", "gpt-3.5-turbo", "o1-preview", "o1-mini"],
+      "transformer": {
+        "use": ["copilot"]
+      }
+    },
+    {
+      "name": "deepseek",
+      "api_base_url": "https://api.deepseek.com/chat/completions",
+      "api_key": "your-deepseek-api-key",
+      "models": ["deepseek-chat"],
+      "transformer": "openai"
+    }
+  ],
+  "Router": {
+    "default": "github-copilot,gpt-4",
+    "longContext": "github-copilot,gpt-4",
+    "longContextThreshold": 60000,
+    "background": "deepseek,deepseek-chat",
+    "think": "github-copilot,o1-preview",
+    "webSearch": "github-copilot,gpt-4o"
+  },
+  "CUSTOM_ROUTER_PATH": ""
+}
